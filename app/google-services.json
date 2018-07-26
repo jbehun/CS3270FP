@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "955643068843",
+    "firebase_url": "https://graduation-planner-3cfc8.firebaseio.com",
+    "project_id": "graduation-planner-3cfc8",
+    "storage_bucket": "graduation-planner-3cfc8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955643068843:android:58406cd9adfb5e5f",
+        "android_client_info": {
+          "package_name": "edu.weber.behunin.justin.cs3270fp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955643068843-n41uhovh8aheerjpsbo1of4tefg5o8n2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.weber.behunin.justin.cs3270fp",
+            "certificate_hash": "b1c3001873ca317c67a48f67818aea0d93a8747c"
+          }
+        },
+        {
+          "client_id": "955643068843-o5ests2es5mfv48bg1ptc13goq2tfcva.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaxiEYh-gNDBZDBteyT7KQMJg12mEEVmg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "955643068843-o5ests2es5mfv48bg1ptc13goq2tfcva.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
