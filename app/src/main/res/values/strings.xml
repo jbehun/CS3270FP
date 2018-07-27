@@ -9,4 +9,5 @@
     <string name="welcome_title">Welcome  \nSign in or create an account</string>
     <string name="e_mail">E-mail</string>
     <string name="password">Password:</string>
+    <string name="create">Create</string>
 </resources>
