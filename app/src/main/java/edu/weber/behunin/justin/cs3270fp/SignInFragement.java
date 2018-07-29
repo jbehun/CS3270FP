@@ -18,6 +18,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Objects;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,7 +37,7 @@ public class SignInFragement extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mAuth = FirebaseAuth.getInstance();
         // Inflate the layout for this fragment
@@ -75,14 +77,16 @@ public class SignInFragement extends Fragment {
         if (validInput()) {
 
             mAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                    .addOnCompleteListener(Objects.requireNonNull(getActivity()), new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 //if succesfull go to plan fragment
                                 Log.d("test", "user successfully created");
                                 FirebaseUser user = mAuth.getCurrentUser();
-                                Log.d("test", user.getEmail());
+                                if (user != null) {
+                                    Log.d("test", user.getEmail());
+                                }
                             } else {
                                 //if sign in fails, display a message to user
                                 Log.d("test", "Create user failed " + task.getException());
@@ -105,15 +109,17 @@ public class SignInFragement extends Fragment {
 
         if (validInput()) {
             mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                    .addOnCompleteListener(Objects.requireNonNull(getActivity()), new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 //Sign in successful go to plan fragment.
                                 Log.d("test", "Sign in successful");
                                 FirebaseUser user = mAuth.getCurrentUser();
-                                Toast.makeText(getActivity(), "Welcome " + user.getEmail(),
-                                        Toast.LENGTH_SHORT).show();
+                                if (user != null) {
+                                    Toast.makeText(getActivity(), "Welcome " + user.getEmail(),
+                                            Toast.LENGTH_SHORT).show();
+                                }
                             } else {
                                 Log.d("test", "Sign in failed " + task.getException());
                                 Toast.makeText(getActivity(), "Unable to sign in",
