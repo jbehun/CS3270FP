@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -15,10 +16,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.Objects;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements
+        PlanFragment.SignOutAction,
+        SignInFragment.SignedInAction,
+        PlanRecylcerAdapter.OnPlanClicked{
 
     private FirebaseAuth mAuth;
 
@@ -27,9 +28,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mAuth = FirebaseAuth.getInstance();
-
-        testFirebase();
+        //testFirebase();
 
     }
 
@@ -37,8 +36,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        //todo add sign out as a menu option once signed in
-        mAuth.signOut();
+        mAuth = FirebaseAuth.getInstance();
+
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser == null) {
@@ -46,36 +45,29 @@ public class MainActivity extends AppCompatActivity {
             userSignIn();
 
         }else{
-            Toast toast = Toast.makeText(this, currentUser.getEmail(), Toast.LENGTH_SHORT);
-            toast.show();
+            loadPlanFragment();
         }
 
+    }
+
+    private void loadPlanFragment() {
+        FragmentManager fm = getSupportFragmentManager();
+
+        fm.beginTransaction().replace(R.id.frag1, new PlanFragment(), "FragPlan")
+                .addToBackStack(null).commit();
     }
 
     private void userSignIn() {
         FragmentManager fm = getSupportFragmentManager();
 
-        fm.beginTransaction().replace(R.id.frag1, new SignInFragement(), "FragSignIn")
+        fm.beginTransaction().replace(R.id.frag1, new SignInFragment(), "FragSignIn")
                 .addToBackStack(null).commit();
     }
 
     private void testFirebase(){
 
-
-        Course course = new Course("CS3620", "TestCourse", false);
-
         DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        mDatabase.child("courses").child(course.getCourseName()).setValue(course);
-
-        course = new Course("CS4250", "Test Course 2", true);
-
-        mDatabase.child("courses").child(course.getCourseName()).setValue(course);
-
-        course = new Course("CS4720", "Test Course 3", true);
-
-        mDatabase.child("courses").child(course.getCourseName()).setValue(course);
 
         // Read from the database
        mDatabase.child("courses").addValueEventListener(new ValueEventListener() {
@@ -83,9 +75,10 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
-                DataSnapshot child = dataSnapshot.child("TestCourse");
-                Log.d("test", "" +
-                        Objects.requireNonNull(child.getValue(Course.class)).getCourseName());
+                for(DataSnapshot child: dataSnapshot.getChildren()){
+                    Course value = child.getValue(Course.class);
+                    Log.d("test", "Course: " + value.getCourseID());
+                }
 
             }
 
@@ -95,15 +88,26 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("test", "Failed to read value.", error.toException());
             }
         });
+    }
 
-        ArrayList<String> courseList = new ArrayList<>();
-        courseList.add("CS3100");
-        courseList.add("CS2440");
-        courseList.add("CS1400");
+    @Override
+    public void signout() {
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.signOut();
+        FragmentManager fm = getSupportFragmentManager();
+        fm.popBackStack();
+        userSignIn();
+    }
 
-        Prerequisite prerequisite = new Prerequisite("CS4100",courseList);
+    @Override
+    public void signedIn() {
+        FragmentManager fm = getSupportFragmentManager();
+        fm.popBackStack();
+        loadPlanFragment();
+    }
 
-        mDatabase.child("prereqs").child("CS4100").setValue(prerequisite);
-
+    @Override
+    public void planClickAction(Plan plan) {
+        //TODO add on plan clicked action goto semester fragment
     }
 }

@@ -1,10 +1,13 @@
 package edu.weber.behunin.justin.cs3270fp;
 
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,14 +27,19 @@ import java.util.Objects;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SignInFragement extends Fragment {
+public class SignInFragment extends Fragment {
 
-    FirebaseAuth mAuth;
-    View root;
-    TextInputEditText txtEmail, txtPassword;
-    Button btnSignIn, btnCreate;
+    private FirebaseAuth mAuth;
+    private View root;
+    private TextInputEditText txtEmail, txtPassword;
+    private Button btnSignIn, btnCreate;
+    private SignedInAction mCallback;
 
-    public SignInFragement() {
+    interface SignedInAction {
+        void signedIn();
+    }
+
+    public SignInFragment() {
         // Required empty public constructor
     }
 
@@ -41,7 +49,27 @@ public class SignInFragement extends Fragment {
                              Bundle savedInstanceState) {
         mAuth = FirebaseAuth.getInstance();
         // Inflate the layout for this fragment
-        return root = inflater.inflate(R.layout.fragment_sign_in_fragement, container, false);
+        root = inflater.inflate(R.layout.fragment_sign_in_fragement, container, false);
+
+        Toolbar toolbar = root.findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.app_name);
+
+        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+
+        return root;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        try {
+            mCallback = (SignedInAction) getActivity();
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() +
+                    " must implement SignedInActionInterface");
+
+        }
     }
 
     @Override
@@ -82,11 +110,7 @@ public class SignInFragement extends Fragment {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 //if succesfull go to plan fragment
-                                Log.d("test", "user successfully created");
-                                FirebaseUser user = mAuth.getCurrentUser();
-                                if (user != null) {
-                                    Log.d("test", user.getEmail());
-                                }
+                                mCallback.signedIn();
                             } else {
                                 //if sign in fails, display a message to user
                                 Log.d("test", "Create user failed " + task.getException());
@@ -114,12 +138,7 @@ public class SignInFragement extends Fragment {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 //Sign in successful go to plan fragment.
-                                Log.d("test", "Sign in successful");
-                                FirebaseUser user = mAuth.getCurrentUser();
-                                if (user != null) {
-                                    Toast.makeText(getActivity(), "Welcome " + user.getEmail(),
-                                            Toast.LENGTH_SHORT).show();
-                                }
+                                mCallback.signedIn();
                             } else {
                                 Log.d("test", "Sign in failed " + task.getException());
                                 Toast.makeText(getActivity(), "Unable to sign in",
