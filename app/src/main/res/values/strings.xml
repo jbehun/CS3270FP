@@ -11,4 +11,6 @@
     <string name="sign_out">Sign Out</string>
     <string name="user_name_not_found">Unable to get user name</string>
     <string name="your_plans">Your Plans</string>
+    <string name="enter_plan_name">Enter Plan Name</string>
+    <string name="save">Save</string>
 </resources>

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Plan {
 
-    private ArrayList<Semester> semesterList = new ArrayList<>();
+    private ArrayList<Semester> semesterList;
     private String planName;
 
     public Plan() {
@@ -39,4 +39,6 @@ public class Plan {
     public void addSemester(Semester semester){
         semesterList.add(semester);
     }
+
+
 }

@@ -2,11 +2,13 @@ package edu.weber.behunin.justin.cs3270fp;
 
 
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -71,6 +73,14 @@ public class PlanFragment extends Fragment {
         welcomeTxt = (TextView) root.findViewById(R.id.txtPlanWelcome);
 
         recyclerView = (RecyclerView) root.findViewById(R.id.rvPlanList);
+
+        FloatingActionButton fab = (FloatingActionButton) root.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO add callback to the main activity
+            }
+        });
 
         return root;
     }
@@ -174,4 +184,6 @@ public class PlanFragment extends Fragment {
     public void onPause() {
         super.onPause();
     }
+
+
 }
