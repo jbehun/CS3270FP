@@ -2,15 +2,11 @@ package edu.weber.behunin.justin.cs3270fp;
 
 
 import android.app.Activity;
-import android.app.FragmentManager;
-import android.arch.lifecycle.ViewModel;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -34,6 +30,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 /**
@@ -41,17 +38,15 @@ import java.util.ArrayList;
  */
 public class PlanFragment extends Fragment {
 
-    private View root;
-    private FirebaseAuth mAuth;
-    private SignOutAction mCallback;
+    private OnPlanAction mCallback;
     private TextView welcomeTxt;
     private RecyclerView recyclerView;
     private PlanRecylcerAdapter adapter;
-    private int columnCount = 1;
-    private DatabaseReference mDatabase;
 
-    interface SignOutAction {
+    interface OnPlanAction {
         void signout();
+
+        void createPlan();
     }
 
     public PlanFragment() {
@@ -59,15 +54,17 @@ public class PlanFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        root = inflater.inflate(R.layout.fragment_plan, container, false);
+        View root = inflater.inflate(R.layout.fragment_plan, container, false);
 
         Toolbar toolbar = root.findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.your_plans);
 
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity) Objects.requireNonNull(getActivity())).
+                setSupportActionBar(toolbar);
+
         setHasOptionsMenu(true);
 
         welcomeTxt = (TextView) root.findViewById(R.id.txtPlanWelcome);
@@ -78,7 +75,7 @@ public class PlanFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO add callback to the main activity
+                mCallback.createPlan();
             }
         });
 
@@ -90,17 +87,17 @@ public class PlanFragment extends Fragment {
         super.onAttach(activity);
 
         try {
-            mCallback = (SignOutAction) getActivity();
+            mCallback = (OnPlanAction) getActivity();
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() +
-                    " must implement SignOutAction interface");
+                    " must implement OnPlanAction interface");
         }
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
-        getActivity().getMenuInflater().inflate(R.menu.signout, menu);
+        Objects.requireNonNull(getActivity()).getMenuInflater().inflate(R.menu.signout, menu);
     }
 
     @Override
@@ -121,12 +118,12 @@ public class PlanFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser != null) {
-            String[] getUser = currentUser.getEmail().split("@");
+            String[] getUser = Objects.requireNonNull(currentUser.getEmail()).split("@");
             welcomeTxt.setText(String.format("%s %s",
                     getString(R.string.welcome_title),
                     getUser[0].substring(0, 1).toUpperCase()
@@ -138,6 +135,7 @@ public class PlanFragment extends Fragment {
         Context context = getContext();
         adapter = new PlanRecylcerAdapter(new ArrayList<Plan>(), recyclerView);
 
+        int columnCount = 1;
         if (columnCount <= 1) {
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
         } else {
@@ -147,7 +145,7 @@ public class PlanFragment extends Fragment {
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(false);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
         Plan plan = new Plan("My First Plan");
         mDatabase.child(currentUser.getUid()).child(plan.getPlanName()).setValue(plan);
@@ -164,7 +162,7 @@ public class PlanFragment extends Fragment {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                     Plan plan = child.getValue(Plan.class);
                     plans.add(plan);
-                    Log.d("test", plan.getPlanName());
+                    Log.d("test", Objects.requireNonNull(plan).getPlanName());
                 }
 
                 adapter.addPlans(plans);
