@@ -13,4 +13,8 @@
     <string name="your_plans">Your Plans</string>
     <string name="enter_plan_name">Enter Plan Name</string>
     <string name="save">Save</string>
+    <string name="create_plan">Create New Plan</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

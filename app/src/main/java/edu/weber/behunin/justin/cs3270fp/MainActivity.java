@@ -3,10 +3,9 @@ package edu.weber.behunin.justin.cs3270fp;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -17,7 +16,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity implements
-        PlanFragment.SignOutAction,
+        PlanFragment.OnPlanAction,
         SignInFragment.SignedInAction,
         PlanRecylcerAdapter.OnPlanClicked{
 
@@ -109,5 +108,21 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void planClickAction(Plan plan) {
         //TODO add on plan clicked action goto semester fragment
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .replace(R.id.frag1, new SemesterFragement(), "framSemester")
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void createPlan() {
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .add(R.id.frag1, new PlanDialogFragment(), "fragPlanDialog")
+                .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .commit();
+
     }
 }

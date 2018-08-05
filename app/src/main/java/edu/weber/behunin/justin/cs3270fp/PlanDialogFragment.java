@@ -33,7 +33,7 @@ public class PlanDialogFragment extends DialogFragment {
         root = inflater.inflate(R.layout.plan_dialog, container, false);
 
         Toolbar toolbar = root.findViewById(R.id.toolbar);
-        toolbar.setTitle("Temp Title");
+        toolbar.setTitle(R.string.create_plan);
 
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
 
