@@ -3,36 +3,35 @@ package edu.weber.behunin.justin.cs3270fp;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class PlanRecylcerAdapter extends RecyclerView.Adapter<PlanRecylcerAdapter.ViewHolder> {
+public class SemesterRecyclerAdapater extends RecyclerView.Adapter<SemesterRecyclerAdapater.ViewHolder> {
 
-    private final List<Plan> planList;
-    private OnPlanClicked mCallback;
+    private final List<Semester> semesterList;
+    private final OnSemesterClicked mCallback;
 
-    public void addPlans(ArrayList<Plan> plans) {
-        planList.clear();
-        planList.addAll(plans);
-        notifyDataSetChanged();
-
+    public void addSemesters(Plan plan) {
+        if (plan.getSemesterList() != null) {
+            semesterList.clear();
+            semesterList.addAll(plan.getSemesterList());
+            notifyDataSetChanged();
+        }
     }
 
-    interface OnPlanClicked {
-        void planClickAction(Plan plan);
+    interface OnSemesterClicked {
+        void semesterClickAction(Semester semester);
     }
 
-    public PlanRecylcerAdapter(List<Plan> planList, RecyclerView recyclerView) {
-        this.planList = planList;
+    public SemesterRecyclerAdapater(List<Semester> semesterList, RecyclerView recyclerView) {
+        this.semesterList = semesterList;
 
-        try{
-            mCallback = (OnPlanClicked) recyclerView.getContext();
-        }catch (ClassCastException e){
+        try {
+            mCallback = (OnSemesterClicked) recyclerView.getContext();
+        } catch (ClassCastException e) {
             throw new ClassCastException(recyclerView.toString() +
                     " must implement OnPlanClicked interface");
         }
@@ -49,15 +48,16 @@ public class PlanRecylcerAdapter extends RecyclerView.Adapter<PlanRecylcerAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        final Plan plan = planList.get(position);
-        if (plan != null) {
-            holder.plan = plan;
-            holder.tvLine1.setText(plan.getPlanName());
+        final Semester semester = semesterList.get(position);
+        if (semester != null) {
+            holder.semester = semester;
+            holder.tvLine1.setText(semester.getsName());
 
             holder.view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mCallback.planClickAction(plan);
+                    //TODO Semster was clicked goto course list.
+                    mCallback.semesterClickAction(semester);
                 }
             });
         }
@@ -65,13 +65,12 @@ public class PlanRecylcerAdapter extends RecyclerView.Adapter<PlanRecylcerAdapte
 
     @Override
     public int getItemCount() {
-        return planList.size();
+        return semesterList.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-
         public TextView tvLine1;
-        public Plan plan;
+        public Semester semester;
         public View view;
 
         public ViewHolder(View itemView) {
@@ -80,4 +79,6 @@ public class PlanRecylcerAdapter extends RecyclerView.Adapter<PlanRecylcerAdapte
             tvLine1 = (TextView) itemView.findViewById(R.id.line1);
         }
     }
+
+
 }

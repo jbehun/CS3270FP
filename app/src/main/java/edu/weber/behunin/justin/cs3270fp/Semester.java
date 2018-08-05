@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Semester {
 
     private String sName;
-    private ArrayList<Course> courses;
+    private ArrayList<Course> courses = new ArrayList<>();
 
     public Semester() {
         //required empty defualt constructor

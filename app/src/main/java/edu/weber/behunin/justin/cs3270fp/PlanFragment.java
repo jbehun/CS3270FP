@@ -41,10 +41,10 @@ public class PlanFragment extends Fragment {
     private OnPlanAction mCallback;
     private TextView welcomeTxt;
     private RecyclerView recyclerView;
-    private PlanRecylcerAdapter adapter;
+    private PlanRecyclerAdapter adapter;
 
     interface OnPlanAction {
-        void signout();
+        void signOut();
 
         void createPlan();
     }
@@ -106,7 +106,7 @@ public class PlanFragment extends Fragment {
         switch (item.getItemId()) {
 
             case R.id.action_signOut:
-                mCallback.signout();
+                mCallback.signOut();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -133,7 +133,7 @@ public class PlanFragment extends Fragment {
         }
 
         Context context = getContext();
-        adapter = new PlanRecylcerAdapter(new ArrayList<Plan>(), recyclerView);
+        adapter = new PlanRecyclerAdapter(new ArrayList<Plan>(), recyclerView);
 
         int columnCount = 1;
         if (columnCount <= 1) {
@@ -146,9 +146,6 @@ public class PlanFragment extends Fragment {
         recyclerView.setHasFixedSize(false);
 
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        Plan plan = new Plan("My First Plan");
-        mDatabase.child(currentUser.getUid()).child(plan.getPlanName()).setValue(plan);
 
         mDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
 

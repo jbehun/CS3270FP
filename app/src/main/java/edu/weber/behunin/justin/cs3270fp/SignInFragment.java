@@ -13,13 +13,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Objects;
 
@@ -33,6 +33,7 @@ public class SignInFragment extends Fragment {
     private View root;
     private TextInputEditText txtEmail, txtPassword;
     private Button btnSignIn, btnCreate;
+    private TextView txtError;
     private SignedInAction mCallback;
 
     interface SignedInAction {
@@ -49,7 +50,7 @@ public class SignInFragment extends Fragment {
                              Bundle savedInstanceState) {
         mAuth = FirebaseAuth.getInstance();
         // Inflate the layout for this fragment
-        root = inflater.inflate(R.layout.fragment_sign_in_fragement, container, false);
+        root = inflater.inflate(R.layout.fragment_sign_in, container, false);
 
         Toolbar toolbar = root.findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.app_name);
@@ -80,6 +81,7 @@ public class SignInFragment extends Fragment {
         txtPassword = root.findViewById(R.id.inputPassword);
         btnSignIn = root.findViewById(R.id.buttonSignIn);
         btnCreate = root.findViewById(R.id.buttonCreate);
+        txtError = root.findViewById(R.id.txtError);
 
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,15 +116,13 @@ public class SignInFragment extends Fragment {
                             } else {
                                 //if sign in fails, display a message to user
                                 Log.d("test", "Create user failed " + task.getException());
-                                Toast.makeText(getActivity(), "Creation Failed", Toast.LENGTH_SHORT)
-                                        .show();
+                                txtError.setText(R.string.create_user_failed);
                             }
                         }
                     });
 
         } else {
-            Toast toast = Toast.makeText(getActivity(), "Invalid input", Toast.LENGTH_SHORT);
-            toast.show();
+            txtError.setText(R.string.invalid_input);
         }
     }
 
@@ -141,14 +141,12 @@ public class SignInFragment extends Fragment {
                                 mCallback.signedIn();
                             } else {
                                 Log.d("test", "Sign in failed " + task.getException());
-                                Toast.makeText(getActivity(), "Unable to sign in",
-                                        Toast.LENGTH_SHORT).show();
+                                txtError.setText(R.string.failed_signin);
                             }
                         }
                     });
         } else {
-            Toast toast = Toast.makeText(getActivity(), "Invalid input", Toast.LENGTH_SHORT);
-            toast.show();
+            txtError.setText(R.string.invalid_input);
         }
     }
 

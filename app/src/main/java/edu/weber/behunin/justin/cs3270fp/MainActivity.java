@@ -18,7 +18,10 @@ import com.google.firebase.database.ValueEventListener;
 public class MainActivity extends AppCompatActivity implements
         PlanFragment.OnPlanAction,
         SignInFragment.SignedInAction,
-        PlanRecylcerAdapter.OnPlanClicked{
+        PlanRecyclerAdapter.OnPlanClicked,
+        SemesterFragment.OnSemesterAction,
+        ConfirmDeletePlanDialog.PlanDeleteConfirmed,
+        SemesterRecyclerAdapater.OnSemesterClicked {
 
     private FirebaseAuth mAuth;
 
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements
             //if user not signed in goto sign fragment
             userSignIn();
 
-        }else{
+        } else {
             loadPlanFragment();
         }
 
@@ -63,18 +66,18 @@ public class MainActivity extends AppCompatActivity implements
                 .addToBackStack(null).commit();
     }
 
-    private void testFirebase(){
+    private void testFirebase() {
 
         DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         // Read from the database
-       mDatabase.child("courses").addValueEventListener(new ValueEventListener() {
+        mDatabase.child("courses").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
-                for(DataSnapshot child: dataSnapshot.getChildren()){
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
                     Course value = child.getValue(Course.class);
                     Log.d("test", "Course: " + value.getCourseID());
                 }
@@ -90,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void signout() {
+    public void signOut() {
         mAuth = FirebaseAuth.getInstance();
         mAuth.signOut();
         FragmentManager fm = getSupportFragmentManager();
@@ -107,10 +110,11 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void planClickAction(Plan plan) {
-        //TODO add on plan clicked action goto semester fragment
+        SemesterFragment semesterFragment = new SemesterFragment();
+        semesterFragment.setPlan(plan);
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
-                .replace(R.id.frag1, new SemesterFragement(), "framSemester")
+                .replace(R.id.frag1, semesterFragment, "framSemester")
                 .addToBackStack(null)
                 .commit();
     }
@@ -123,6 +127,53 @@ public class MainActivity extends AppCompatActivity implements
                 .addToBackStack(null)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit();
+
+    }
+
+    @Override
+    public void createSemester(Plan plan) {
+        SemesterDialogFragment semesterDialog = new SemesterDialogFragment();
+        semesterDialog.setPlan(plan);
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .add(R.id.frag1, semesterDialog, "dialogSemester")
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .commit();
+
+    }
+
+    @Override
+    public void confirmDeletePlan(Plan plan) {
+        ConfirmDeletePlanDialog deletePlanDialog = new ConfirmDeletePlanDialog();
+        deletePlanDialog.setCancelable(false);
+        deletePlanDialog.setPlan(plan);
+        deletePlanDialog.show(getSupportFragmentManager(), "dialogDelete");
+    }
+
+    public void deletePlan(Plan plan) {
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        mDatabase.child(currentUser.getUid()).child(plan.getPlanName()).removeValue();
+        done();
+    }
+
+    @Override
+    public void done() {
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .replace(R.id.frag1, new PlanFragment(), "fragPlanDialog")
+                .addToBackStack(null)
+                .commit();
+
+    }
+
+    @Override
+    public void deletionConfirmed(Plan plan) {
+        deletePlan(plan);
+    }
+
+    @Override
+    public void semesterClickAction(Semester semester) {
 
     }
 }

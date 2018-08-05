@@ -22,15 +22,17 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class PlanDialogFragment extends DialogFragment {
+public class SemesterDialogFragment extends DialogFragment {
 
-    private TextInputEditText edtPlanName;
+    private Plan plan;
+    private TextInputEditText edtSemesterName;
     private View root;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        root = inflater.inflate(R.layout.plan_dialog, container, false);
+
+        root = inflater.inflate(R.layout.semester_dialog, container, false);
 
         Toolbar toolbar = root.findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.create_plan);
@@ -46,7 +48,8 @@ public class PlanDialogFragment extends DialogFragment {
         }
 
         setHasOptionsMenu(true);
-        edtPlanName = (TextInputEditText) root.findViewById(R.id.edtPlanName);
+
+        edtSemesterName = root.findViewById(R.id.edtSemesterName);
 
         return root;
     }
@@ -67,17 +70,18 @@ public class PlanDialogFragment extends DialogFragment {
         getActivity().getMenuInflater().inflate(R.menu.dialog_menu, menu);
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
-
             case R.id.action_save:
 
                 FirebaseAuth mAuth = FirebaseAuth.getInstance();
                 FirebaseUser currentUser = mAuth.getCurrentUser();
                 DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-                Plan plan = new Plan(edtPlanName.getText().toString());
+                Semester semester = new Semester(edtSemesterName.getText().toString());
+                plan.addSemester(semester);
                 mDatabase.child(currentUser.getUid()).child(plan.getPlanName()).setValue(plan);
                 dismiss();
                 return true;
@@ -85,7 +89,13 @@ public class PlanDialogFragment extends DialogFragment {
             case android.R.id.home:
                 dismiss();
                 return true;
-         default: return super.onOptionsItemSelected(item);
+            default:
+                return super.onOptionsItemSelected(item);
         }
+
+    }
+
+    public void setPlan(Plan plan) {
+        this.plan = plan;
     }
 }
