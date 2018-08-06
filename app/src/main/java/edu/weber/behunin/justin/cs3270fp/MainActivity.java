@@ -1,7 +1,6 @@
 package edu.weber.behunin.justin.cs3270fp;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -9,11 +8,10 @@ import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements
         PlanFragment.OnPlanAction,
@@ -21,7 +19,9 @@ public class MainActivity extends AppCompatActivity implements
         PlanRecyclerAdapter.OnPlanClicked,
         SemesterFragment.OnSemesterAction,
         ConfirmDeletePlanDialog.PlanDeleteConfirmed,
-        SemesterRecyclerAdapater.OnSemesterClicked {
+        SemesterRecyclerAdapter.OnSemesterClicked,
+        CourseFragment.OnCourseAction,
+        CourseRecylerAdapter.OnCourseClicked{
 
     private FirebaseAuth mAuth;
 
@@ -29,9 +29,6 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //testFirebase();
-
     }
 
     @Override
@@ -66,32 +63,6 @@ public class MainActivity extends AppCompatActivity implements
                 .addToBackStack(null).commit();
     }
 
-    private void testFirebase() {
-
-        DatabaseReference mDatabase;
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        // Read from the database
-        mDatabase.child("courses").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    Course value = child.getValue(Course.class);
-                    Log.d("test", "Course: " + value.getCourseID());
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                // Failed to read value
-                Log.d("test", "Failed to read value.", error.toException());
-            }
-        });
-    }
-
     @Override
     public void signOut() {
         mAuth = FirebaseAuth.getInstance();
@@ -114,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements
         semesterFragment.setPlan(plan);
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
-                .replace(R.id.frag1, semesterFragment, "framSemester")
+                .replace(R.id.frag1, semesterFragment, "fragSemester")
                 .addToBackStack(null)
                 .commit();
     }
@@ -139,7 +110,6 @@ public class MainActivity extends AppCompatActivity implements
                 .add(R.id.frag1, semesterDialog, "dialogSemester")
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit();
-
     }
 
     @Override
@@ -154,11 +124,44 @@ public class MainActivity extends AppCompatActivity implements
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         mDatabase.child(currentUser.getUid()).child(plan.getPlanName()).removeValue();
-        done();
+        doneWithPlan();
     }
 
     @Override
-    public void done() {
+    public void confirmSemesterDelete(Semester semester, Plan plan) {
+        //TODo create confirmation dialog and delete semester if confirmed.
+        deleteSemester(semester, plan);
+    }
+
+    @Override
+    public void doneWithSemester(Plan plan) {
+        SemesterFragment semesterFragment = new SemesterFragment();
+        semesterFragment.setPlan(plan);
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .replace(R.id.frag1, semesterFragment, "fragSemester")
+                .addToBackStack(null)
+                .commit();
+
+    }
+
+    private void deleteSemester(Semester semester, Plan plan) {
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        plan.deleteSemester(semester);
+        mDatabase.child(currentUser.getUid()).child(plan.getPlanName())
+                .setValue(plan);
+        ArrayList<Semester> semesters = new ArrayList<>();
+        semesters = plan.getSemesterList();
+        for(Semester s : semesters){
+            Log.d("test", s.getSemesterName());
+        }
+        Log.d("test", semester.getSemesterName() + " deleted");
+        doneWithSemester(plan);
+    }
+
+    @Override
+    public void doneWithPlan() {
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
                 .replace(R.id.frag1, new PlanFragment(), "fragPlanDialog")
@@ -173,7 +176,18 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void semesterClickAction(Semester semester) {
+    public void semesterClickAction(Semester semester, Plan plan) {
+        CourseFragment courseFragment = new CourseFragment();
+        courseFragment.setPlanValues(semester, plan);
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .replace(R.id.frag1, courseFragment, "fragCourse")
+                .addToBackStack(null)
+                .commit();
+    }
 
+    @Override
+    public void courseClickedAction(Course course, Semester semester, Plan plan) {
+        //TODO create action when course is clicked.
     }
 }

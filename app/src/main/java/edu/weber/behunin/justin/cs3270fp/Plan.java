@@ -36,9 +36,27 @@ public class Plan {
         this.semesterList = semesterList;
     }
 
-    public void addSemester(Semester semester){
+    public void addSemester(Semester semester) {
         semesterList.add(semester);
     }
 
+    public Semester getSemester(Semester semester) {
+        for (int i = 0; i < semesterList.size(); i++) {
+            if (semester.getSemesterName().equals(semesterList.get(i).getSemesterName())) {
+                return semesterList.get(i);
+            }
+        }
+
+        return new Semester();
+    }
+
+    public void deleteSemester(Semester semester) {
+
+        for (int i = 0; i < semesterList.size(); i++) {
+            if (semester.getSemesterName().equals(semesterList.get(i).getSemesterName())) {
+                semesterList.remove(i);
+            }
+        }
+    }
 
 }

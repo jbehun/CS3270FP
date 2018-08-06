@@ -42,12 +42,12 @@ public class SemesterFragment extends Fragment {
     private Plan plan;
     private OnSemesterAction mCallbackk;
     private FirebaseAuth mAuth;
-    private SemesterRecyclerAdapater adapter;
+    private SemesterRecyclerAdapter adapter;
 
     interface OnSemesterAction{
         void createSemester(Plan plan);
         void confirmDeletePlan(Plan plan);
-        void done();
+        void doneWithPlan();
     }
 
 
@@ -79,7 +79,6 @@ public class SemesterFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO add dialog to add a semester
                 mCallbackk.createSemester(plan);
             }
         });
@@ -111,7 +110,7 @@ public class SemesterFragment extends Fragment {
                 mCallbackk.confirmDeletePlan(plan);
                 return true;
             case R.id.actionDone:
-                mCallbackk.done();
+                mCallbackk.doneWithPlan();
                 return true;
             default:
             return super.onOptionsItemSelected(item);
@@ -125,12 +124,10 @@ public class SemesterFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-
         txtSemester.setText(R.string.semester_list);
 
         Context context = getContext();
-        adapter = new SemesterRecyclerAdapater(new ArrayList<Semester>(), recyclerView);
+        adapter = new SemesterRecyclerAdapter(plan, new ArrayList<Semester>(), recyclerView);
 
         int columnCount = 1;
         if (columnCount <= 1) {
@@ -142,20 +139,19 @@ public class SemesterFragment extends Fragment {
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(false);
 
-        DatabaseReference mDatabse = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
 
         mDatabase.child(currentUser.getUid()).child(plan.getPlanName())
                 .addValueEventListener(new ValueEventListener() {
 
-                    private ArrayList<Semester> semesters = new ArrayList<>();
-
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        semesters.clear();
                         Plan plan = dataSnapshot.getValue(Plan.class);
-                        adapter.addSemesters(plan);
-                        Log.d("test", plan.getPlanName());
+                        if (plan != null) {
+                            adapter.addSemesters(plan);
+                            Log.d("test", plan.getPlanName());
+                        }
                     }
 
                     @Override

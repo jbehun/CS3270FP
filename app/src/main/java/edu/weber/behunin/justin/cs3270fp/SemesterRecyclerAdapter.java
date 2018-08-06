@@ -9,13 +9,14 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class SemesterRecyclerAdapater extends RecyclerView.Adapter<SemesterRecyclerAdapater.ViewHolder> {
+public class SemesterRecyclerAdapter extends RecyclerView.Adapter<SemesterRecyclerAdapter.ViewHolder> {
 
     private final List<Semester> semesterList;
     private final OnSemesterClicked mCallback;
+    private final Plan plan;
 
     public void addSemesters(Plan plan) {
-        if (plan.getSemesterList() != null) {
+        if (plan.getSemesterList() != null && plan != null) {
             semesterList.clear();
             semesterList.addAll(plan.getSemesterList());
             notifyDataSetChanged();
@@ -23,11 +24,12 @@ public class SemesterRecyclerAdapater extends RecyclerView.Adapter<SemesterRecyc
     }
 
     interface OnSemesterClicked {
-        void semesterClickAction(Semester semester);
+        void semesterClickAction(Semester semester, Plan plan);
     }
 
-    public SemesterRecyclerAdapater(List<Semester> semesterList, RecyclerView recyclerView) {
+    public SemesterRecyclerAdapter(Plan plan, List<Semester> semesterList, RecyclerView recyclerView) {
         this.semesterList = semesterList;
+        this.plan = plan;
 
         try {
             mCallback = (OnSemesterClicked) recyclerView.getContext();
@@ -51,13 +53,12 @@ public class SemesterRecyclerAdapater extends RecyclerView.Adapter<SemesterRecyc
         final Semester semester = semesterList.get(position);
         if (semester != null) {
             holder.semester = semester;
-            holder.tvLine1.setText(semester.getsName());
+            holder.tvLine1.setText(semester.getSemesterName());
 
             holder.view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO Semster was clicked goto course list.
-                    mCallback.semesterClickAction(semester);
+                    mCallback.semesterClickAction(semester, plan);
                 }
             });
         }

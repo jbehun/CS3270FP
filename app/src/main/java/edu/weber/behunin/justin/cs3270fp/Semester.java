@@ -4,28 +4,28 @@ import java.util.ArrayList;
 
 public class Semester {
 
-    private String sName;
+    private String semesterName;
     private ArrayList<Course> courses = new ArrayList<>();
 
     public Semester() {
         //required empty defualt constructor
     }
 
-    public Semester(String sName) {
-        this.sName = sName;
+    public Semester(String semesterName) {
+        this.semesterName = semesterName;
     }
 
-    public Semester(String sName, ArrayList<Course> courses) {
-        this.sName = sName;
+    public Semester(String semesterName, ArrayList<Course> courses) {
+        this.semesterName = semesterName;
         this.courses = courses;
     }
 
-    public String getsName() {
-        return sName;
+    public String getSemesterName() {
+        return semesterName;
     }
 
-    public void setsName(String sName) {
-        this.sName = sName;
+    public void setSemesterName(String semesterName) {
+        this.semesterName = semesterName;
     }
 
     public ArrayList<Course> getCourses() {
