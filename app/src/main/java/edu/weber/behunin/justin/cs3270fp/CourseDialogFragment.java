@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -24,20 +24,20 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Objects;
 
-public class SemesterDialogFragment extends DialogFragment {
+public class CourseDialogFragment extends DialogFragment {
 
-    private Plan plan;
-    private TextInputEditText edtSemesterName;
-    private View root;
+    Plan plan;
+    Semester semester;
+    Course course;
+    TextView txtCourseID, txtCourseName, txtCoursePreReq;
+    View root;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        root = inflater.inflate(R.layout.semester_dialog, container, false);
-
+        root = inflater.inflate(R.layout.course_dialog_fragment, container, false);
         Toolbar toolbar = root.findViewById(R.id.toolbar);
-        toolbar.setTitle(R.string.create_plan);
+        toolbar.setTitle(R.string.course);
 
         ((AppCompatActivity) Objects.requireNonNull(getActivity())).setSupportActionBar(toolbar);
 
@@ -49,9 +49,12 @@ public class SemesterDialogFragment extends DialogFragment {
             actionBar.setHomeAsUpIndicator(android.R.drawable.ic_menu_close_clear_cancel);
         }
 
+
         setHasOptionsMenu(true);
 
-        edtSemesterName = root.findViewById(R.id.edtSemesterName);
+        txtCourseID = root.findViewById(R.id.txtCourseID);
+        txtCourseName = root.findViewById(R.id.txtCourseName);
+        txtCoursePreReq = root.findViewById(R.id.txtCoursePreReq);
 
         return root;
     }
@@ -60,46 +63,57 @@ public class SemesterDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
-
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
         return dialog;
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
-        Objects.requireNonNull(getActivity()).getMenuInflater().inflate(R.menu.dialog_menu, menu);
+        Objects.requireNonNull(getActivity()).getMenuInflater().inflate(R.menu.course_menu, menu);
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch (item.getItemId()) {
-            case R.id.action_save:
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
-                FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                FirebaseUser currentUser = mAuth.getCurrentUser();
-                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-                Semester semester = new Semester(edtSemesterName.getText().toString());
-                plan.addSemester(semester);
+        switch (item.getItemId()) {
+            case R.id.actionCourseDelete:
+
+                semester.deleteCourse(course);
+                Semester temp = semester;
+                plan.deleteSemester(semester);
+                plan.addSemester(temp);
                 if (currentUser != null) {
                     mDatabase.child(currentUser.getUid()).child(plan.getPlanName()).setValue(plan);
                 }
                 dismiss();
+
                 return true;
 
             case android.R.id.home:
+
                 dismiss();
                 return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
-
     }
 
-    public void setPlan(Plan plan) {
+    @Override
+    public void onResume() {
+        super.onResume();
+        txtCourseID.setText(course.getCourseID());
+        txtCourseName.setText(course.getCourseName());
+    }
+
+    public void setValues(Plan plan, Semester semester, Course course) {
         this.plan = plan;
+        this.semester = semester;
+        this.course = course;
     }
 }

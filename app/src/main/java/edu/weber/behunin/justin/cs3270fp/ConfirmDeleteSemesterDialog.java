@@ -45,15 +45,15 @@ public class ConfirmDeleteSemesterDialog extends DialogFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        try{
+        try {
             mCallback = (OnConfirmedSemesterAction) getActivity();
-        }catch (ClassCastException e){
+        } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() +
-            " must implement OnConfirmedSemesterAction");
+                    " must implement OnConfirmedSemesterAction");
         }
     }
 
-    public void setPlanValues(Plan plan, Semester semester){
+    public void setPlanValues(Plan plan, Semester semester) {
 
         this.plan = plan;
         this.semester = semester;

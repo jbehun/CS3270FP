@@ -12,7 +12,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,6 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -44,9 +44,11 @@ public class SemesterFragment extends Fragment {
     private FirebaseAuth mAuth;
     private SemesterRecyclerAdapter adapter;
 
-    interface OnSemesterAction{
+    interface OnSemesterAction {
         void createSemester(Plan plan);
+
         void confirmDeletePlan(Plan plan);
+
         void doneWithPlan();
     }
 
@@ -62,13 +64,13 @@ public class SemesterFragment extends Fragment {
         root = inflater.inflate(R.layout.fragment_semseter, container, false);
 
         Toolbar toolbar = root.findViewById(R.id.toolbar);
-        if(plan != null) {
+        if (plan != null) {
             toolbar.setTitle(plan.getPlanName());
-        }else {
+        } else {
             toolbar.setTitle(R.string.edit_plan);
         }
 
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity) Objects.requireNonNull(getActivity())).setSupportActionBar(toolbar);
 
         setHasOptionsMenu(true);
 
@@ -89,18 +91,18 @@ public class SemesterFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        try{
-            mCallbackk = (OnSemesterAction)getActivity() ;
-        }catch (ClassCastException e){
+        try {
+            mCallbackk = (OnSemesterAction) getActivity();
+        } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() +
-            " must implement OnSemeterAction interface");
+                    " must implement OnSemeterAction interface");
         }
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
-        getActivity().getMenuInflater().inflate(R.menu.fragment_menu, menu);
+        Objects.requireNonNull(getActivity()).getMenuInflater().inflate(R.menu.fragment_menu, menu);
     }
 
     @Override
@@ -113,7 +115,7 @@ public class SemesterFragment extends Fragment {
                 mCallbackk.doneWithPlan();
                 return true;
             default:
-            return super.onOptionsItemSelected(item);
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -151,7 +153,6 @@ public class SemesterFragment extends Fragment {
                             Plan plan = dataSnapshot.getValue(Plan.class);
                             if (plan != null) {
                                 adapter.addSemesters(plan);
-                                Log.d("test", plan.getPlanName());
                             }
                         }
 
@@ -165,7 +166,7 @@ public class SemesterFragment extends Fragment {
 
     }
 
-    public void setPlan(Plan plan){
+    public void setPlan(Plan plan) {
         this.plan = plan;
     }
 

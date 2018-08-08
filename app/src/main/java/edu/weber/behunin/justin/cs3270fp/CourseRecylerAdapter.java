@@ -22,7 +22,7 @@ public class CourseRecylerAdapter extends RecyclerView.Adapter<CourseRecylerAdap
         notifyDataSetChanged();
     }
 
-    interface OnCourseClicked{
+    interface OnCourseClicked {
         void courseClickedAction(Course course, Semester semester, Plan plan);
     }
 
@@ -31,11 +31,11 @@ public class CourseRecylerAdapter extends RecyclerView.Adapter<CourseRecylerAdap
         this.courseList = courseList;
         this.semester = semester;
 
-        try{
+        try {
             mCallback = (OnCourseClicked) recyclerView.getContext();
-        }catch (ClassCastException e){
+        } catch (ClassCastException e) {
             throw new ClassCastException(recyclerView.toString() +
-            " must implement OnCourseClicked interface");
+                    " must implement OnCourseClicked interface");
         }
     }
 
@@ -53,14 +53,14 @@ public class CourseRecylerAdapter extends RecyclerView.Adapter<CourseRecylerAdap
 
         final Course course = courseList.get(position);
 
-        if(course != null){
+        if (course != null) {
             holder.course = course;
             holder.tvLine1.setText(String.format("%s: %s", course.getCourseID(), course.getCourseName()));
 
             holder.view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mCallback.courseClickedAction(course,semester, plan);
+                    mCallback.courseClickedAction(course, semester, plan);
                 }
             });
         }
@@ -71,7 +71,7 @@ public class CourseRecylerAdapter extends RecyclerView.Adapter<CourseRecylerAdap
         return courseList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView tvLine1;
         public Course course;
         public View view;

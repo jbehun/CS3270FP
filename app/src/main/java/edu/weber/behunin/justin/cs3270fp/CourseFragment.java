@@ -11,7 +11,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -89,7 +89,6 @@ public class CourseFragment extends Fragment {
 
         setHasOptionsMenu(true);
 
-        TextView txtCourseName = root.findViewById(R.id.txtCourse);
         recyclerView = (RecyclerView) root.findViewById(R.id.rvCourseLIst);
         spinner = (Spinner) root.findViewById(R.id.spinner);
         button = (Button) root.findViewById(R.id.button);
@@ -184,7 +183,6 @@ public class CourseFragment extends Fragment {
                             if (plan != null) {
                                 Semester s = plan.getSemester(semester);
                                 adapter.addValue(s);
-                                Log.d("test", plan.getPlanName());
                             }
                         }
 
@@ -195,18 +193,22 @@ public class CourseFragment extends Fragment {
                     });
         }
 
-
-        //TODO add functionality to add course to the database.
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Course course = (Course) spinner.getSelectedItem();
-                Semester temp = semester;
-                temp.addCourse(course);
-                plan.deleteSemester(semester);
-                plan.addSemester(temp);
-                if (currentUser != null) {
-                    mDatabase.child(currentUser.getUid()).child(plan.getPlanName()).setValue(plan);
+                if (!semester.getCourses().contains(course)) {
+                    Semester temp = semester;
+                    temp.addCourse(course);
+                    plan.deleteSemester(semester);
+                    plan.addSemester(temp);
+                    if (currentUser != null) {
+                        mDatabase.child(currentUser.getUid()).child(plan.getPlanName()).setValue(plan);
+                    }
+                } else {
+                    Toast toast = Toast.makeText(getContext(), R.string.course_already_added, Toast.LENGTH_SHORT);
+                    toast.show();
+
                 }
             }
         });

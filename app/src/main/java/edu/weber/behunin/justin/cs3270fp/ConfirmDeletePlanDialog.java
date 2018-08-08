@@ -13,11 +13,11 @@ public class ConfirmDeletePlanDialog extends DialogFragment {
     private PlanDeleteConfirmed mCallBack;
     private Plan plan;
 
-    interface PlanDeleteConfirmed{
-       void planDeletionConfirmed(Plan plan);
+    interface PlanDeleteConfirmed {
+        void planDeletionConfirmed(Plan plan);
     }
 
-    public ConfirmDeletePlanDialog(){
+    public ConfirmDeletePlanDialog() {
         //required empty constructor
     }
 
@@ -47,15 +47,15 @@ public class ConfirmDeletePlanDialog extends DialogFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        try{
+        try {
             mCallBack = (PlanDeleteConfirmed) getActivity();
-        }catch (ClassCastException e){
+        } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() +
-            " must implement PlanDeleteConfirmedInterface");
+                    " must implement PlanDeleteConfirmedInterface");
         }
     }
 
-    public void setPlan(Plan plan){
+    public void setPlan(Plan plan) {
         this.plan = plan;
     }
 

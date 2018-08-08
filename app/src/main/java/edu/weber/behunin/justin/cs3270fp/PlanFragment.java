@@ -12,7 +12,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -147,31 +146,30 @@ public class PlanFragment extends Fragment {
 
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        mDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
+        if (currentUser != null) {
+            mDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
 
-            private ArrayList<Plan> plans = new ArrayList<>();
+                private ArrayList<Plan> plans = new ArrayList<>();
 
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                plans.clear();
+                    plans.clear();
 
-                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    Plan plan = child.getValue(Plan.class);
-                    plans.add(plan);
-                    Log.d("test", Objects.requireNonNull(plan).getPlanName());
+                    for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        Plan plan = child.getValue(Plan.class);
+                        plans.add(plan);
+                    }
+
+                    adapter.addPlans(plans);
                 }
 
-                adapter.addPlans(plans);
-                Log.d("test", "Code Reached");
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+                }
+            });
+        }
 
     }
 

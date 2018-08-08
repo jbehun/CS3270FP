@@ -29,9 +29,9 @@ public class PlanRecyclerAdapter extends RecyclerView.Adapter<PlanRecyclerAdapte
     public PlanRecyclerAdapter(List<Plan> planList, RecyclerView recyclerView) {
         this.planList = planList;
 
-        try{
+        try {
             mCallback = (OnPlanClicked) recyclerView.getContext();
-        }catch (ClassCastException e){
+        } catch (ClassCastException e) {
             throw new ClassCastException(recyclerView.toString() +
                     " must implement OnPlanClicked interface");
         }

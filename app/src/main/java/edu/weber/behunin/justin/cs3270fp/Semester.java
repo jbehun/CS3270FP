@@ -36,7 +36,15 @@ public class Semester {
         this.courses = courses;
     }
 
-    public void addCourse(Course course){
+    public void addCourse(Course course) {
         courses.add(course);
+    }
+
+    public void deleteCourse(Course course) {
+        for (int i = 0; i < courses.size(); i++) {
+            if (course.getCourseID().equals(courses.get(i).getCourseID())) {
+                courses.remove(i);
+            }
+        }
     }
 }

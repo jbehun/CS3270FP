@@ -16,7 +16,7 @@ public class SemesterRecyclerAdapter extends RecyclerView.Adapter<SemesterRecycl
     private final Plan plan;
 
     public void addSemesters(Plan plan) {
-        if (plan.getSemesterList() != null && plan != null) {
+        if (plan.getSemesterList() != null) {
             semesterList.clear();
             semesterList.addAll(plan.getSemesterList());
             notifyDataSetChanged();
