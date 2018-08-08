@@ -1,15 +1,18 @@
 package edu.weber.behunin.justin.cs3270fp;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -21,9 +24,11 @@ public class MainActivity extends AppCompatActivity implements
         ConfirmDeletePlanDialog.PlanDeleteConfirmed,
         SemesterRecyclerAdapter.OnSemesterClicked,
         CourseFragment.OnCourseAction,
-        CourseRecylerAdapter.OnCourseClicked{
+        CourseRecylerAdapter.OnCourseClicked,
+        ConfirmDeleteSemesterDialog.OnConfirmedSemesterAction {
 
     private FirebaseAuth mAuth;
+    private ArrayList<Course> courseList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +39,25 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        mDatabase.child(getString(R.string.course_data)).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                courseList.clear();
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    Course course = child.getValue(Course.class);
+                    courseList.add(course);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -123,13 +147,22 @@ public class MainActivity extends AppCompatActivity implements
     public void deletePlan(Plan plan) {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        mDatabase.child(currentUser.getUid()).child(plan.getPlanName()).removeValue();
+        if (currentUser != null) {
+            mDatabase.child(currentUser.getUid()).child(plan.getPlanName()).removeValue();
+        }
         doneWithPlan();
     }
 
     @Override
     public void confirmSemesterDelete(Semester semester, Plan plan) {
-        //TODo create confirmation dialog and delete semester if confirmed.
+        ConfirmDeleteSemesterDialog deleteSemesterDialog = new ConfirmDeleteSemesterDialog();
+        deleteSemesterDialog.setPlanValues(plan, semester);
+        deleteSemesterDialog.setCancelable(false);
+        deleteSemesterDialog.show(getSupportFragmentManager(), "dialogDeleteSemester");
+    }
+
+    @Override
+    public void semesterDeletionConfirmed(Plan plan, Semester semester) {
         deleteSemester(semester, plan);
     }
 
@@ -149,14 +182,10 @@ public class MainActivity extends AppCompatActivity implements
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         plan.deleteSemester(semester);
-        mDatabase.child(currentUser.getUid()).child(plan.getPlanName())
-                .setValue(plan);
-        ArrayList<Semester> semesters = new ArrayList<>();
-        semesters = plan.getSemesterList();
-        for(Semester s : semesters){
-            Log.d("test", s.getSemesterName());
+        if (currentUser != null) {
+            mDatabase.child(currentUser.getUid()).child(plan.getPlanName())
+                    .setValue(plan);
         }
-        Log.d("test", semester.getSemesterName() + " deleted");
         doneWithSemester(plan);
     }
 
@@ -171,14 +200,14 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void deletionConfirmed(Plan plan) {
+    public void planDeletionConfirmed(Plan plan) {
         deletePlan(plan);
     }
 
     @Override
     public void semesterClickAction(Semester semester, Plan plan) {
         CourseFragment courseFragment = new CourseFragment();
-        courseFragment.setPlanValues(semester, plan);
+        courseFragment.setPlanValues(semester, plan, courseList);
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
                 .replace(R.id.frag1, courseFragment, "fragCourse")
@@ -190,4 +219,5 @@ public class MainActivity extends AppCompatActivity implements
     public void courseClickedAction(Course course, Semester semester, Plan plan) {
         //TODO create action when course is clicked.
     }
+
 }

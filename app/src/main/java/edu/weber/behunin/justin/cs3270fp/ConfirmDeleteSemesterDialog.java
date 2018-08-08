@@ -8,29 +8,26 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 
-public class ConfirmDeletePlanDialog extends DialogFragment {
+public class ConfirmDeleteSemesterDialog extends DialogFragment {
 
-    private PlanDeleteConfirmed mCallBack;
     private Plan plan;
+    private Semester semester;
+    OnConfirmedSemesterAction mCallback;
 
-    interface PlanDeleteConfirmed{
-       void planDeletionConfirmed(Plan plan);
-    }
-
-    public ConfirmDeletePlanDialog(){
-        //required empty constructor
+    interface OnConfirmedSemesterAction {
+        void semesterDeletionConfirmed(Plan plan, Semester semester);
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.delete_plan)
-                .setMessage(R.string.delete_plan_message)
+        builder.setTitle(R.string.delete_semester)
+                .setMessage(R.string.delete_semester_question)
                 .setPositiveButton(getString(R.string.delete), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mCallBack.planDeletionConfirmed(plan);
+                        mCallback.semesterDeletionConfirmed(plan, semester);
                         dismiss();
                     }
                 }).setNeutralButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -40,6 +37,7 @@ public class ConfirmDeletePlanDialog extends DialogFragment {
             }
         });
 
+
         return builder.create();
     }
 
@@ -48,15 +46,17 @@ public class ConfirmDeletePlanDialog extends DialogFragment {
         super.onAttach(activity);
 
         try{
-            mCallBack = (PlanDeleteConfirmed) getActivity();
+            mCallback = (OnConfirmedSemesterAction) getActivity();
         }catch (ClassCastException e){
             throw new ClassCastException(activity.toString() +
-            " must implement PlanDeleteConfirmedInterface");
+            " must implement OnConfirmedSemesterAction");
         }
     }
 
-    public void setPlan(Plan plan){
-        this.plan = plan;
-    }
+    public void setPlanValues(Plan plan, Semester semester){
 
+        this.plan = plan;
+        this.semester = semester;
+
+    }
 }

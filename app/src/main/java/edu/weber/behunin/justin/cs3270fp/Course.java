@@ -2,8 +2,6 @@ package edu.weber.behunin.justin.cs3270fp;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
-import java.util.ArrayList;
-
 @IgnoreExtraProperties
 public class Course {
 
@@ -43,5 +41,10 @@ public class Course {
 
     public void setPrereqRequired(boolean prereqRequired) {
         this.prereqRequired = prereqRequired;
+    }
+
+    @Override
+    public String toString() {
+        return courseID;
     }
 }

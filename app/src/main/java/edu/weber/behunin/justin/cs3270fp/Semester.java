@@ -36,7 +36,7 @@ public class Semester {
         this.courses = courses;
     }
 
-    public void addClass(Course course){
+    public void addCourse(Course course){
         courses.add(course);
     }
 }

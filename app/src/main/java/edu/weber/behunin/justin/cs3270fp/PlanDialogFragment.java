@@ -22,20 +22,21 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Objects;
+
 public class PlanDialogFragment extends DialogFragment {
 
     private TextInputEditText edtPlanName;
-    private View root;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        root = inflater.inflate(R.layout.plan_dialog, container, false);
+        View root = inflater.inflate(R.layout.plan_dialog, container, false);
 
         Toolbar toolbar = root.findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.create_plan);
 
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity) Objects.requireNonNull(getActivity())).setSupportActionBar(toolbar);
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 
@@ -64,7 +65,7 @@ public class PlanDialogFragment extends DialogFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
-        getActivity().getMenuInflater().inflate(R.menu.dialog_menu, menu);
+        Objects.requireNonNull(getActivity()).getMenuInflater().inflate(R.menu.dialog_menu, menu);
     }
 
     @Override
@@ -78,14 +79,17 @@ public class PlanDialogFragment extends DialogFragment {
                 FirebaseUser currentUser = mAuth.getCurrentUser();
                 DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
                 Plan plan = new Plan(edtPlanName.getText().toString());
-                mDatabase.child(currentUser.getUid()).child(plan.getPlanName()).setValue(plan);
+                if (currentUser != null) {
+                    mDatabase.child(currentUser.getUid()).child(plan.getPlanName()).setValue(plan);
+                }
                 dismiss();
                 return true;
 
             case android.R.id.home:
                 dismiss();
                 return true;
-         default: return super.onOptionsItemSelected(item);
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }

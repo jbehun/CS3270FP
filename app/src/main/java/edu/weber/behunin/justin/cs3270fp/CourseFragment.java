@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +18,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -32,6 +33,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 /**
@@ -39,24 +41,20 @@ import java.util.ArrayList;
  */
 public class CourseFragment extends Fragment {
 
-    private View root;
     private RecyclerView recyclerView;
     private CourseRecylerAdapter adapter;
-    private TextView txtCourseName;
     private Plan plan;
     private Semester semester;
     private OnCourseAction mCallback;
-    private FirebaseAuth mAuth;
     private Spinner spinner;
     private Button button;
-    final ArrayList<Course> courses = new ArrayList<>();
+    private ArrayList<Course> courses = new ArrayList<>();
 
     interface OnCourseAction {
         void confirmSemesterDelete(Semester semester, Plan plan);
 
         void doneWithSemester(Plan plan);
 
-        ;
     }
 
     public CourseFragment() {
@@ -76,9 +74,9 @@ public class CourseFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        root = inflater.inflate(R.layout.fragment_course, container, false);
+        View root = inflater.inflate(R.layout.fragment_course, container, false);
 
         Toolbar toolbar = root.findViewById(R.id.toolbar);
         if (semester != null) {
@@ -87,42 +85,26 @@ public class CourseFragment extends Fragment {
             toolbar.setTitle(R.string.edit_semester);
         }
 
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity) Objects.requireNonNull(getActivity())).setSupportActionBar(toolbar);
 
         setHasOptionsMenu(true);
 
-        txtCourseName = root.findViewById(R.id.txtCourse);
+        TextView txtCourseName = root.findViewById(R.id.txtCourse);
         recyclerView = (RecyclerView) root.findViewById(R.id.rvCourseLIst);
         spinner = (Spinner) root.findViewById(R.id.spinner);
         button = (Button) root.findViewById(R.id.button);
 
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        mDatabase.child(getString(R.string.course_data)).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                courses.clear();
-                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    Course course = child.getValue(Course.class);
-                    courses.add(course);
-                    Log.d("test", "Course: " + course.getCourseID());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-
         return root;
+    }
+
+    private void addCourse(Course course) {
+        courses.add(course);
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
-        getActivity().getMenuInflater().inflate(R.menu.fragment_menu, menu);
+        Objects.requireNonNull(getActivity()).getMenuInflater().inflate(R.menu.fragment_menu, menu);
     }
 
     @Override
@@ -146,12 +128,39 @@ public class CourseFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        DatabaseReference mDatatebase = FirebaseDatabase.getInstance().getReference();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        final FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+
 
         Context context = getContext();
+
+        ArrayAdapter<Course> arrayAdapter = null;
+        if (context != null) {
+            arrayAdapter = new ArrayAdapter<>(context,
+                    android.R.layout.simple_spinner_item, courses);
+        }
+        if (arrayAdapter != null) {
+            arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        }
+        spinner.setAdapter(arrayAdapter);
+
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         adapter = new CourseRecylerAdapter(plan, semester, new ArrayList<Course>(), recyclerView);
+
 
         int columnCount = 1;
 
@@ -164,34 +173,49 @@ public class CourseFragment extends Fragment {
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(false);
 
-        mDatatebase.child(currentUser.getUid()).child(plan.getPlanName())
-                .addValueEventListener(new ValueEventListener() {
+        if (currentUser != null) {
+            mDatabase.child(currentUser.getUid()).child(plan.getPlanName())
+                    .addValueEventListener(new ValueEventListener() {
 
 
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Plan plan = dataSnapshot.getValue(Plan.class);
-                if (plan != null) {
-                    Semester s = plan.getSemester(semester);
-                    adapter.addValue(s);
-                    Log.d("test", plan.getPlanName());
-                }
-            }
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            Plan plan = dataSnapshot.getValue(Plan.class);
+                            if (plan != null) {
+                                Semester s = plan.getSemester(semester);
+                                adapter.addValue(s);
+                                Log.d("test", plan.getPlanName());
+                            }
+                        }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                        }
+                    });
+        }
 
 
         //TODO add functionality to add course to the database.
-
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Course course = (Course) spinner.getSelectedItem();
+                Semester temp = semester;
+                temp.addCourse(course);
+                plan.deleteSemester(semester);
+                plan.addSemester(temp);
+                if (currentUser != null) {
+                    mDatabase.child(currentUser.getUid()).child(plan.getPlanName()).setValue(plan);
+                }
+            }
+        });
     }
 
-    public void setPlanValues(Semester semester, Plan plan) {
+    public void setPlanValues(Semester semester, Plan plan, ArrayList<Course> courseList) {
         this.semester = semester;
         this.plan = plan;
+        courses = courseList;
     }
 
 }

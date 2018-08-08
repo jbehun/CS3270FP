@@ -142,24 +142,25 @@ public class SemesterFragment extends Fragment {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
 
-        mDatabase.child(currentUser.getUid()).child(plan.getPlanName())
-                .addValueEventListener(new ValueEventListener() {
+        if (currentUser != null) {
+            mDatabase.child(currentUser.getUid()).child(plan.getPlanName())
+                    .addValueEventListener(new ValueEventListener() {
 
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        Plan plan = dataSnapshot.getValue(Plan.class);
-                        if (plan != null) {
-                            adapter.addSemesters(plan);
-                            Log.d("test", plan.getPlanName());
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            Plan plan = dataSnapshot.getValue(Plan.class);
+                            if (plan != null) {
+                                adapter.addSemesters(plan);
+                                Log.d("test", plan.getPlanName());
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                    }
-                });
-
+                        }
+                    });
+        }
 
 
     }

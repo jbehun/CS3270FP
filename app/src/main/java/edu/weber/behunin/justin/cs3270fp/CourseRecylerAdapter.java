@@ -55,7 +55,7 @@ public class CourseRecylerAdapter extends RecyclerView.Adapter<CourseRecylerAdap
 
         if(course != null){
             holder.course = course;
-            holder.tvLine1.setText(course.getCourseName());
+            holder.tvLine1.setText(String.format("%s: %s", course.getCourseID(), course.getCourseName()));
 
             holder.view.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -64,8 +64,6 @@ public class CourseRecylerAdapter extends RecyclerView.Adapter<CourseRecylerAdap
                 }
             });
         }
-
-
     }
 
     @Override
